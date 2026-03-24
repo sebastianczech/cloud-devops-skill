@@ -13,8 +13,28 @@
 ## GitHub Actions
 
 ### Reusable Workflow Pattern
+
+> **Note:** `_build.yml` and `_deploy.yml` must each define `on: workflow_call` as their trigger to be callable from another workflow. Without that, the `uses:` reference will fail at runtime.
+
 ```yaml
-# .github/workflows/deploy.yml
+# .github/workflows/_build.yml  (reusable workflow — must define on: workflow_call)
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # ... build steps
+```
+
+```yaml
+# .github/workflows/deploy.yml  (caller workflow)
 on:
   push:
     branches: [main]
