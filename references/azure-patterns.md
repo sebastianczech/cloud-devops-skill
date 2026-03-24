@@ -59,8 +59,8 @@ kv-myapp-prod-eastus-001
 Source (authoritative and complete list): [Azure CAF Resource Abbreviations](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations)
 
 The full set of recommended abbreviations is maintained by Microsoft in the link above.
-The table below is a **small, non-exhaustive sample** included only to illustrate how
-the naming pattern is applied; refer to the official documentation for all services.
+The table below is a **non-exhaustive subset** included only to illustrate how the
+naming pattern is applied; always refer to the official documentation for the complete and up-to-date list of services.
 
 | Resource (example)              | Abbreviation (example) |
 |---------------------------------|-------------------------|
