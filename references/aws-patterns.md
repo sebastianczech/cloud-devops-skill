@@ -31,7 +31,7 @@ module "irsa" {
   oidc_providers = {
     ex = {
       provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["default:my-app-sa"]
+      namespace_service_accounts = ["<namespace>:my-app-sa"]
     }
   }
 }
