@@ -35,3 +35,35 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Terraform lock and plan files
+.terraform.lock.hcl
+*.tfplan
+
+# Credentials and secrets
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+.env.*
+secrets.yaml
+*-credentials.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
