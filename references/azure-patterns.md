@@ -56,26 +56,20 @@ kv-myapp-prod-eastus-001
 
 ### Official Azure Resource Abbreviations
 
-Source: [Azure CAF Resource Abbreviations](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations)
+Source (authoritative and complete list): [Azure CAF Resource Abbreviations](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations)
 
-#### AI + Machine Learning
+The full set of recommended abbreviations is maintained by Microsoft in the link above.
+The table below is a **small, non-exhaustive sample** included only to illustrate how
+the naming pattern is applied; refer to the official documentation for all services.
 
-| Resource | Abbreviation |
-|----------|-------------|
-| AI Search | `srch` |
-| Foundry Tools (multi-service account) | `ais` |
-| Foundry account | `aif` |
-| Foundry account project | `proj` |
-| Foundry hub | `hub` |
-| Foundry hub project | `proj` |
-| Azure AI Video Indexer | `avi` |
-| Azure Machine Learning workspace | `mlw` |
-| Azure OpenAI Service | `oai` |
-| Bot service | `bot` |
-| Computer vision | `cv` |
-| Content moderator | `cm` |
-| Content safety | `cs` |
-| Custom vision (prediction) | `cstv` |
+| Resource (example)              | Abbreviation (example) |
+|---------------------------------|-------------------------|
+| Resource group                  | `rg`                    |
+| Virtual network                 | `vnet`                  |
+| Network security group          | `nsg`                   |
+| Azure Kubernetes Service        | `aks`                   |
+| Azure Container Registry        | `cr`                    |
+| Key Vault                       | `kv`                    |
 | Custom vision (training) | `cstvt` |
 | Document intelligence | `di` |
 | Face API | `face` |
