@@ -78,7 +78,7 @@ stages:
 
   - stage: DeployProd
     dependsOn: DeployDev
-    environment: prod  # triggers approval gate
+    environment: prod  # can require approval if the 'prod' environment is configured with checks/approvals
 ```
 
 ## AWS CodePipeline
