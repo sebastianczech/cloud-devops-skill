@@ -1,6 +1,6 @@
 # Cloud DevOps Skill for Claude Agent
 
-Claude Agent Skill for cloud-native DevOps engineers — best practices, patterns, and decision frameworks for Terraform, Kubernetes and CI/CD pipelines on Azure, AWS
+Claude Agent Skill for cloud-native DevOps engineers — best practices, patterns, and decision frameworks for Terraform, Kubernetes and CI/CD pipelines on Azure and AWS.
 
 ## Links
 
