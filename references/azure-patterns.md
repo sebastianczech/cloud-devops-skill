@@ -15,7 +15,7 @@
 ## AKS Best Practices
 
 - Enable managed identity (system-assigned or user-assigned) — no service principal secrets
-- Use Azure CNI for advanced networking (required for network policies)
+- Use Azure CNI for advanced networking; required if you plan to use Azure Network Policy (Calico network policies are also available with kubenet or Azure CNI)
 - Enable workload identity for pod-level Azure RBAC
 - Use node pools: system pool (reserved for system pods) + user pool(s) for workloads
 - Enable cluster auto-scaler per node pool
