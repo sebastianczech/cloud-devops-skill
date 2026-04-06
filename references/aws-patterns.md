@@ -20,7 +20,27 @@
 - Enable control plane logging (api, audit, authenticator, controllerManager, scheduler)
 - Use AWS Load Balancer Controller instead of in-tree cloud provider
 
-### IRSA Example
+### IRSA — How It Works
+
+IRSA lets pods access AWS services using IAM permissions without storing credentials in the container. It works at the pod level, equivalent to EC2 instance profiles but scoped to a Kubernetes service account.
+
+**Token flow:**
+1. Kubernetes issues a `ProjectedServiceAccountToken` (OIDC JWT) to the pod
+2. EKS hosts a public OIDC discovery endpoint with signing keys (keys rotate every 7 days)
+3. The AWS SDK exchanges the token with STS via `AssumeRoleWithWebIdentity`
+4. STS returns short-lived credentials scoped to the IAM role
+
+**Setup — three steps:**
+
+**1. Create the IAM OIDC provider** (once per cluster):
+```bash
+eksctl utils associate-iam-oidc-provider \
+  --cluster my-cluster \
+  --approve
+```
+> **DNS gotcha**: If the EKS VPC endpoint is enabled, run this from outside the VPC (e.g., AWS CloudShell) or add a Route 53 Resolver conditional forwarder for the OIDC issuer URL. Otherwise DNS resolves `oidc.eks.<region>.amazonaws.com` to NXDOMAIN.
+
+**2. Create an IAM role with a trust policy** referencing the service account:
 ```hcl
 module "irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
@@ -29,13 +49,45 @@ module "irsa" {
   attach_s3_read_policy = true
 
   oidc_providers = {
-    ex = {
+    main = {
       provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["<namespace>:my-app-sa"]
+      namespace_service_accounts = ["my-namespace:my-app-sa"]
     }
   }
 }
 ```
+
+The trust policy created by this module looks like:
+```json
+{
+  "Effect": "Allow",
+  "Principal": {
+    "Federated": "arn:aws:iam::ACCOUNT:oidc-provider/oidc.eks.REGION.amazonaws.com/id/CLUSTER_ID"
+  },
+  "Action": "sts:AssumeRoleWithWebIdentity",
+  "Condition": {
+    "StringEquals": {
+      "oidc.eks.REGION.amazonaws.com/id/CLUSTER_ID:sub": "system:serviceaccount:my-namespace:my-app-sa"
+    }
+  }
+}
+```
+
+**3. Annotate the Kubernetes service account:**
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-app-sa
+  namespace: my-namespace
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/my-app-role
+```
+
+**Caveats:**
+- Pods with `hostNetwork: true` always have IMDS access, but IRSA credentials take priority when the annotation is set
+- If IMDS is unrestricted (hop limit > 1), containers can also access the node IAM role — restrict it with `--metadata-options` or a hop limit of 1
+- External OIDC clients (e.g., third-party IdPs) must refresh signing keys before the 7-day rotation window expires
 
 ## Networking
 

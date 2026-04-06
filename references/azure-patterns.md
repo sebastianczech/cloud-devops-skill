@@ -15,10 +15,11 @@
 ## AKS Best Practices
 
 - Enable managed identity (system-assigned or user-assigned) — no service principal secrets
-- Use Azure CNI for advanced networking; required if you plan to use Azure Network Policy (Calico network policies are also available with kubenet or Azure CNI)
+- Use **Azure CNI Overlay** for new clusters — recommended default; avoids IP exhaustion and supports large pod counts without pre-allocating VNet IPs per node. Use plain Azure CNI only if you need pod IPs directly routable in the VNet.
 - Enable workload identity for pod-level Azure RBAC
 - Use node pools: system pool (reserved for system pods) + user pool(s) for workloads
 - Enable cluster auto-scaler per node pool
+- Reference implementation: [mspnp/aks-baseline](https://github.com/mspnp/aks-baseline) — Microsoft's recommended starting architecture covering hub-spoke networking, WAF ingress, Workload Identity, Secrets Store CSI, Flux GitOps, and Azure Monitor
 
 ### AKS Workload Identity
 ```hcl
@@ -319,6 +320,39 @@ naming pattern is applied; always refer to the official documentation for the co
 | Virtual desktop workspace | `vdws` |
 | Virtual desktop scaling plan | `vdscaling` |
 
+## Governance Tools
+
+| Tool | Purpose |
+|------|---------|
+| [AzAdvertizer](https://www.azadvertizer.net/) | Browse and track changes to Azure Policy definitions, initiatives, aliases, RBAC roles, and Entra ID roles |
+| [Azure Policy built-ins](https://learn.microsoft.com/en-us/azure/governance/policy/samples/built-in-policies) | Official index of all built-in policy definitions |
+| [Privileged Identity Management](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/) | Just-in-time elevated access for Azure and Entra ID roles |
+| [Komodor](https://komodor.com/) | Kubernetes-native incident management — correlates changes to failures, accelerates root-cause analysis |
+| [Loft / vcluster](https://www.vcluster.com/) | Multi-tenancy self-service — provision lightweight virtual clusters per team/developer without cluster sprawl |
+
+### AzAdvertizer Use Cases
+
+**Writing custom Azure Policy definitions** — use the [Policy Aliases browser](https://www.azadvertizer.net/azpolicyaliasesadvertizer.html) to find the exact alias for the resource property you want to target. This replaces running `Get-AzPolicyAlias` in PowerShell:
+
+```hcl
+# Example: enforce managed disk storage SKU on VMs
+resource "azurerm_policy_definition" "managed_disk_sku" {
+  policy_rule = jsonencode({
+    if = {
+      field  = "Microsoft.Compute/virtualMachines/storageProfile.osDisk.managedDisk.storageAccountType"
+      notIn  = ["Premium_LRS", "StandardSSD_LRS"]
+    }
+    then = { effect = "Deny" }
+  })
+}
+```
+
+**Auditing RBAC role changes** — Azure silently adds and removes permissions from built-in roles. Check AzAdvertizer's change log before scoping a least-privilege custom role to confirm the current permission set.
+
+**Choosing built-in initiatives** — browse the full list of built-in initiatives (CIS, NIST 800-53, PCI-DSS, ISO 27001) and their exact policy coverage before deciding whether to use a built-in or build a custom one.
+
+> AzAdvertizer is a personal project by a Microsoft employee, not an official Microsoft product. Cross-reference with official docs for production policy decisions.
+
 ## IaC for Azure
 
 - Prefer **Terraform** for multi-cloud or team familiarity
@@ -449,6 +483,8 @@ Source: [the-aks-checklist.com](https://www.the-aks-checklist.com/) — last upd
 - [ ] Regularly check Azure Advisor recommendations
 - [ ] Regularly scan cluster for issues (AKS Periscope, kube-bench)
 - [ ] Consider Long-Term Support (LTS) Kubernetes versions for 24-month support lifecycle
+- [ ] Establish governance to prevent direct operator changes in the node resource group (MC_*) — changes there bypass IaC and cause drift
+- [ ] Install debugging tools on the cluster (K9s, kubectl-debug) for faster incident response
 
 ### Business Continuity & Disaster Recovery
 

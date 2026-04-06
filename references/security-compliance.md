@@ -54,5 +54,27 @@
 | Code | SonarQube, Semgrep |
 | IaC | Checkov, tfsec, tflint |
 | Container | Trivy, Snyk, Grype |
-| Kubernetes | Kube-bench, Kubesec, Polaris |
-| Runtime | Falco, Microsoft Defender for Containers |
+| Kubernetes | kube-bench, Kubesec, Polaris, kube-hunter |
+| Runtime | Falco, Cilium Tetragon, Microsoft Defender for Containers |
+
+- **[kube-hunter](https://github.com/aquasecurity/kube-hunter)** — actively probes the cluster for exploitable weaknesses (exposed APIs, privilege escalation paths); run in "remote" mode against a target cluster IP
+- **[Cilium Tetragon](https://tetragon.io/)** — eBPF-based runtime enforcement; observes and blocks syscalls, file access, and network activity at the kernel level with near-zero overhead
+
+## Security Training
+
+**[Kubernetes Goat](https://madhuakula.com/kubernetes-goat)** — intentionally vulnerable cluster environment for hands-on security practice. Deploy in an isolated cluster only.
+
+Key attack scenarios and the defensive control each one teaches:
+
+| Scenario | Attack Vector | Defensive Control |
+|----------|--------------|-------------------|
+| Sensitive keys in codebases | Secrets committed to Git | Secret scanning, Sealed Secrets |
+| Container escape to host | Privileged container, hostPath mount | `securityContext`, restricted PSS |
+| SSRF in Kubernetes | Pod reaching cloud metadata endpoint | Network Policy, IMDS hop limit |
+| RBAC misconfiguration | Over-permissive ClusterRole | Least-privilege roles, audit logs |
+| Kubernetes namespace bypass | Missing network isolation | Default-deny NetworkPolicy |
+| NodePort exposed services | Cluster internals reachable from internet | No NodePort in prod; use ingress |
+| Crypto miner container | Compromised image | Image signing, Kyverno policy |
+| Falco runtime detection | Unexpected process in container | Falco rules, alert on shell exec |
+| Kyverno policy engine | Policy bypass | Admission webhook enforcement |
+| Cilium Tetragon eBPF | Kernel-level evasion | eBPF enforcement on syscalls |
