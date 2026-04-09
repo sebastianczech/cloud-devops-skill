@@ -7,3 +7,4 @@ Claude Agent Skill for cloud-native DevOps engineers — best practices, pattern
 * [Claude Skills](https://code.claude.com/docs/en/skills)
 * [Agent Skills](https://agentskills.io/home)
 * [Terraform Skill for Claude](https://github.com/antonbabenko/terraform-skill)
+* [Skill Creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
