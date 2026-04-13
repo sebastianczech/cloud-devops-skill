@@ -51,14 +51,39 @@
 
 | Stage | Tool |
 |-------|------|
-| Code | SonarQube, Semgrep |
-| IaC | Checkov, tfsec, tflint |
+| Code | SonarQube, Semgrep, Gitleaks |
+| IaC | Checkov, tfsec, tflint, Terrascan |
 | Container | Trivy, Snyk, Grype |
 | Kubernetes | kube-bench, Kubesec, Polaris, kube-hunter |
 | Runtime | Falco, Cilium Tetragon, Microsoft Defender for Containers |
 
+- **[Gitleaks](https://github.com/gitleaks/gitleaks)** — scans git history and staged changes for secrets, API keys, and tokens; runs as a pre-commit hook or CI step (available in Super-Linter via `VALIDATE_GITLEAKS`)
+- **[Terrascan](https://runterrascan.io/)** — static IaC analyzer with 500+ policies for Terraform, Helm, Kubernetes, and CloudFormation; run `terrascan init` once to download rulesets
 - **[kube-hunter](https://github.com/aquasecurity/kube-hunter)** — actively probes the cluster for exploitable weaknesses (exposed APIs, privilege escalation paths); run in "remote" mode against a target cluster IP
 - **[Cilium Tetragon](https://tetragon.io/)** — eBPF-based runtime enforcement; observes and blocks syscalls, file access, and network activity at the kernel level with near-zero overhead
+
+## CI Workflow Permissions (Least Privilege)
+
+Declare explicit `permissions:` blocks on every GitHub Actions workflow and job. GitHub's default grants broad read/write access across the token scope — setting permissions explicitly narrows the blast radius if a workflow is compromised:
+
+```yaml
+permissions:
+  contents: read    # only what this job actually needs
+  packages: read
+  statuses: write   # only if writing commit status checks
+  # all other scopes default to 'none' when any permission is listed
+```
+
+For release workflows that write tags and issues, only grant those two scopes:
+
+```yaml
+permissions:
+  contents: write
+  issues: write
+  # everything else: none
+```
+
+> **Rule of thumb:** if a job doesn't push, deploy, or write to GitHub APIs, `contents: read` is almost always sufficient.
 
 ## Security Training
 

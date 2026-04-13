@@ -396,11 +396,30 @@ resource "aws_network_interface" "primary" {
 | [tflint](https://github.com/terraform-linters/tflint) | Linting and provider-specific rule checks |
 | [Checkov](https://www.checkov.io/) | Security and compliance scanning |
 | [tfsec](https://aquasecurity.github.io/tfsec/) | Security scanning |
+| [Terrascan](https://runterrascan.io/) | IaC security scanning with 500+ policies; run `terrascan init` once to download rulesets |
 | [Terratest](https://terratest.gruntwork.io/) | Go-based integration tests |
 | [Infracost](https://www.infracost.io/) | Cost estimation in CI/CD |
 | [Atlantis](https://www.runatlantis.io/) | Pull request automation for plan/apply |
 | [terraform-docs](https://terraform-docs.io/) | Auto-generate module documentation |
 | [Sentinel](https://developer.hashicorp.com/terraform/tutorials/policy) | Policy-as-code enforcement (HCP Terraform / TFE) |
+| [Dependabot](https://docs.github.com/en/code-security/dependabot) | Automated provider/module version PRs — configure per module directory in `.github/dependabot.yml` |
+
+## Pre-Commit Hooks as a CI Gate
+
+[pre-commit-terraform](https://github.com/antonbabenko/pre-commit-terraform) bundles tflint, terraform-docs, Checkov, Trivy, and Terrascan into local git hooks. Run these same hooks in CI to prevent any bypass:
+
+```yaml
+- name: Run pre-commit
+  run: pre-commit run --all-files
+```
+
+Key tools to install before running pre-commit in CI: `trivy`, `terraform-docs`, `tflint`, `terrascan` (each must be on `PATH`). Use pinned versions via env vars to keep CI and local environments consistent:
+
+```yaml
+env:
+  TERRAFORM_DOCS_VERSION: v0.19.0
+  TFLINT_VERSION: v0.55.1
+```
 
 ## Testing
 
